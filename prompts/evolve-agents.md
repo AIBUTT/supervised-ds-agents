@@ -75,7 +75,10 @@ Reply with the applied changes, the audit result, the commit hash, how to undo (
 3. Obtain user approval. Apply clean managed changes with `--apply`. Conflicts block
    apply; merge them manually without discarding local content, then acknowledge exact
    merged paths with repeatable `--accept-local <path> --apply`.
-4. Test the deployed exporter on selected non-sensitive Markdown and cached public
+4. Add `/build/` to the target's outer `.gitignore` if absent; the command does not
+   edit it. If the target forbids command-line scripts, propose an explicit exception
+   for `scripts/build_portable_docs.py` and an owner for `scripts/`.
+   Test the deployed exporter on selected non-sensitive Markdown and cached public
    renderer assets. Review the shared chat rule. Do not replace central instructions
    or individual role files. Component state advances only on complete adoption;
    top-level workspace kit version is deliberately unchanged.

@@ -142,9 +142,13 @@ Reapplying an unchanged component is a no-op. The four managed paths are:
 - `docs/PORTABLE_DOCS.md`;
 - `.github/instructions/chat-equations.instructions.md`.
 
-The chat rule applies to every role: use readable plain ASCII formulas and define
-terms; no raw LaTeX delimiters/commands in chat unless requested. Preserve LaTeX in
-source reports. Newly bootstrapped central instructions reference that shared rule.
+The chat rule applies to every role: write equations in KaTeX (`$...$` inline,
+`$$...$$` for blocks) and define terms. Preserve LaTeX in source reports.
+
+The exporter writes packages and its asset cache only under `build/`. Greenfield
+projects ignore `/build/` through the skeleton `.gitignore`; `update-components` does
+not edit `.gitignore`, so in an existing repository add `/build/` to its `.gitignore`
+before the first build. Newly bootstrapped central instructions reference that shared rule.
 Existing custom `copilot-instructions.md` and role files are never replaced.
 
 Only `components.portable_docs.version` and its managed hashes in the target marker

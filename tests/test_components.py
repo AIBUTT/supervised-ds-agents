@@ -122,7 +122,7 @@ def test_shared_chat_rule_and_no_private_runtime_dependency(tmp_path):
     update(tmp_path, apply=True)
     rule = tmp_path / ".github" / "instructions" / "chat-equations.instructions.md"
     text = rule.read_text("utf-8")
-    assert 'applyTo: "**"' in text and "All roles" in text and "plain ASCII" in text
+    assert 'applyTo: "**"' in text and "All roles" in text and "KaTeX" in text
     assert "Preserve LaTeX" in text
     for relative in ("scripts/portable_docs.py", "scripts/build_portable_docs.py"):
         source = (tmp_path / relative).read_text("utf-8")

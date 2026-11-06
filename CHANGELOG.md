@@ -1,5 +1,19 @@
 # Kit changelog
 
+## Unreleased
+
+Lessons from the first existing-repository adoption of the portable component.
+Component and kit version numbers are not yet bumped.
+
+- Chat equation rule changed from plain ASCII to KaTeX (`$...$`, `$$...$$`) with defined
+  terms; LaTeX in report sources is unchanged. The managed file
+  `chat-equations.instructions.md` changes, so targets that adopted 1.1.0 see an update.
+- Existing repositories: `/build/` must be added to the target `.gitignore` before the
+  first portable build; `update-components` does not edit it. Documented in the README
+  and the evolve procedure.
+- A target rule against command-line scripts conflicts with `scripts/build_portable_docs.py`;
+  the evolve procedure now asks for an explicit exception.
+
 ## v1.1.0 (2026-11-05)
 
 Engineering maintenance; no scientific defaults or role model labels changed.
