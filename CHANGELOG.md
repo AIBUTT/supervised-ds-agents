@@ -13,6 +13,10 @@ Component and kit version numbers are not yet bumped.
   and the evolve procedure.
 - A target rule against command-line scripts conflicts with `scripts/build_portable_docs.py`;
   the evolve procedure now asks for an explicit exception.
+- Kit maintenance: kit-only `/evolve-kit` command and Kit Maintainer agent in the kit's own
+  `.github/`, with the procedure in `prompts/evolve-kit.md` (read-only evidence from installed
+  repositories, version impact per change, temporary render check, separate Git approvals).
+  Nothing changes for installed repositories.
 
 ## v1.1.0 (2026-11-05)
 

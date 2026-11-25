@@ -21,6 +21,8 @@ Scope: data science, machine learning, deep learning, data engineering, data arc
 | `tools/kit_render.py` | Create-only bootstrap plus preview-first versioned component adoption |
 | `components/portable_docs/` | Canonical generic offline exporter, standalone CLI and public guide |
 | `tests/test_kit.py` | Kit tests |
+| `prompts/evolve-kit.md` | Procedure for changing the kit itself |
+| `.github/` | Kit-only: Kit Maintainer agent, `/evolve-kit` command, rules for editing the kit; never rendered into repositories |
 
 ## Installation
 
@@ -204,6 +206,8 @@ claims to migrate arbitrary custom instructions safely.
 ## Maintaining the kit
 
 The kit is a local Git repository, tagged by version.
+
+With the kit open as the workspace, `/evolve-kit` runs the Kit Maintainer agent through `prompts/evolve-kit.md`: it reads named installed repositories as evidence (read-only), proposes generic changes with their version impact, applies only approved items, and verifies them with the kit tests and a temporary render. The command lives in this kit's `.github/prompts/`, so it appears only in this workspace. The steps below are the same procedure done by hand.
 
 1. Change templates, prompts, or the skeleton.
 2. Run the tests: `conda run -n <env> python -m pytest -q -p no:cacheprovider tests` from the kit root.
