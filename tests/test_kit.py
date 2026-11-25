@@ -39,7 +39,7 @@ def boot_args(target: Path, mode: str, roles: str = ALL_ROLES, no_git: bool = Tr
               dry_run: bool = False) -> argparse.Namespace:
     return argparse.Namespace(target=target, mode=mode, project_name="Demo study",
                               module_name="demo", description="Demo project.",
-                              conda_env="DS_002", python_version="3.11", roles=roles,
+                              conda_env="ds-shared", python_version="3.11", roles=roles,
                               no_git=no_git, dry_run=dry_run)
 
 
@@ -147,7 +147,7 @@ def test_ledger_append_and_check(tmp_path):
         "run_id": "20260101_demo", "stage": "01_intake", "agent": "Data Steward",
         "configured_model": "GPT-6 Luna", "actual_model": "unknown",
         "timestamp_utc": "2026-01-01T00:00:00Z", "status": "accepted",
-        "environment": {"conda_env": "DS_002", "package_list_sha256": "x", "git_revision": "y"},
+        "environment": {"conda_env": "ds-shared", "package_list_sha256": "x", "git_revision": "y"},
         "inputs": [], "commands": [], "outputs": [], "files_changed": [],
         "checks": [{"name": "a", "command": "b", "result": "c", "passed": False}],
         "scientific_assumptions_changed": [], "unresolved": [{"item": "z", "blocking": True}],
@@ -185,6 +185,27 @@ def test_git_setup_and_audit(tmp_path):
     run(["git", "add", "-f", ".github"], tmp_path)
     hook = run(["git", "commit", "-m", "leak"], tmp_path)
     assert hook.returncode != 0 and "private" in hook.stderr
+
+
+def test_install_prompts_fills_kit_root_and_refuses_differing_files(tmp_path):
+    args = argparse.Namespace(dest=tmp_path, overwrite=False)
+    result = kit.install_prompts(args)
+
+    names = {p.name for p in (KIT_ROOT / "user-prompts").glob("*.prompt.md")}
+    assert set(result["files"]) == names and set(result["files"].values()) == {"create"}
+    for name in names:
+        text = (tmp_path / name).read_text(encoding="utf-8")
+        assert f"`{KIT_ROOT.as_posix()}/prompts/" in text and "{{" not in text
+    assert set(kit.install_prompts(args)["files"].values()) == {"unchanged"}
+
+    edited = tmp_path / "audit-agents.prompt.md"
+    edited.write_text("local edit\n", encoding="utf-8")
+    with pytest.raises(kit.KitError, match="--overwrite"):
+        kit.install_prompts(args)
+    assert edited.read_text(encoding="utf-8") == "local edit\n"
+    args.overwrite = True
+    assert kit.install_prompts(args)["files"][edited.name] == "overwrite"
+    assert "{{" not in edited.read_text(encoding="utf-8")
 
 
 def test_kit_python_follows_path_style():

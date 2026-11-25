@@ -43,7 +43,7 @@ Group proposals by type. For each, state the evidence, the change, the files, an
 | Update paths | New data folder, renamed module, new output type |
 | Add a role | Modeling code appeared: add the ML Engineer; figures are produced: add the Visualizer |
 | Retire or merge a role | A role has not been used across several runs |
-| Change the environment | Move from `DS_002` to a dedicated environment with a lock file |
+| Change the environment | Move from a shared environment to a dedicated one with a lock file |
 | Update the charter | Goal, scope, or audience changed |
 
 Separately, list **kit candidates**: lessons that would help every repository (not specific to this one), phrased without project names, paths, or confidential details.
@@ -71,7 +71,7 @@ Reply with the applied changes, the audit result, the commit hash, how to undo (
    not permission to bootstrap over custom instructions.
 2. If useful, add `--stage` to write create-only proposals and a base/local/new hash
    plan under `.github/agents/_proposals/portable-docs-1.1.0/`. Review the exact four
-   destinations in the kit README, including the three public exporter/guide files.
+   destinations in the component guide (`<kit>/components/portable_docs/README.md`), including the three public exporter/guide files.
 3. Obtain user approval. Apply clean managed changes with `--apply`. Conflicts block
    apply; merge them manually without discarding local content, then acknowledge exact
    merged paths with repeatable `--accept-local <path> --apply`.
@@ -84,5 +84,5 @@ Reply with the applied changes, the audit result, the commit hash, how to undo (
    top-level workspace kit version is deliberately unchanged.
 5. Report tests, component hashes/version and unresolved custom decisions. These
    commands do not commit or tag. Obtain separate explicit approval for Git actions.
-   For legacy public adapters, use the reviewed `vendor-core` route in the kit README;
+   For legacy public adapters, use the reviewed `vendor-core` route in the component guide;
    legacy private instructions require a manual approved merge.

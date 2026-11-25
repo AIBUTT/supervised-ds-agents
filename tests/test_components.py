@@ -11,8 +11,6 @@ from pathlib import Path
 import pytest
 from test_kit import boot_args, kit
 
-CONDA = Path("C:/Users/10550/AppData/Local/anaconda3/Scripts/conda.exe")
-
 
 def args(target, **kwargs):
     return argparse.Namespace(target=target, stage=False, apply=False, accept_local=[], **kwargs)
@@ -146,11 +144,13 @@ def test_component_paths_reject_symlink_escape(tmp_path):
 def test_generic_deployed_export_with_pinned_cached_assets(tmp_path):
     """Optional real-asset fixture; no network and no project documents are consumed."""
     cache = os.environ.get("PORTABLE_DOCS_TEST_CACHE")
-    if not cache:
-        pytest.skip("Set PORTABLE_DOCS_TEST_CACHE to verified public MathJax asset cache")
+    env = os.environ.get("PORTABLE_DOCS_TEST_CONDA_ENV")
+    if not cache or not env:
+        pytest.skip("Set PORTABLE_DOCS_TEST_CACHE (verified public MathJax asset cache) and "
+                    "PORTABLE_DOCS_TEST_CONDA_ENV (environment with markdown, pymdown-extensions)")
     kit.bootstrap(boot_args(tmp_path, "greenfield"))
-    conda = os.environ.get("CONDA_EXE") or str(CONDA)
-    cli = [conda, "run", "-n", "lhl_discovery", "python",
+    conda = os.environ.get("CONDA_EXE") or "conda"
+    cli = [conda, "run", "-n", env, "python",
            str(kit.KIT_ROOT / "tools" / "kit_render.py"),
            "update-components", "--target", str(tmp_path)]
     before = snapshot(tmp_path)
@@ -170,7 +170,7 @@ def test_generic_deployed_export_with_pinned_cached_assets(tmp_path):
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII="
     ))
     result = subprocess.run(
-        [conda, "run", "-n", "lhl_discovery", "python", str(tmp_path / "scripts" / "build_docs.py"),
+        [conda, "run", "-n", env, "python", str(tmp_path / "scripts" / "build_docs.py"),
          "--portable", "--include", "reports/summary.md", "--name", "generic-study",
          "--version", "1", "--date", "2026-11-05", "--cache", cache],
         capture_output=True, text=True, check=False,

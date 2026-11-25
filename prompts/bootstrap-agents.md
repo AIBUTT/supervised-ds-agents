@@ -2,7 +2,7 @@
 
 You are creating the private agent workspace in the current repository from the agent kit. Act as a staff-level technical lead: careful, explicit, and reversible. This procedure runs once per repository.
 
-The kit root is the folder that contains this file's parent `prompts/` folder. Below it is called `<kit>`. Read `<kit>/README.md` and `<kit>/ROLE_CATALOG.md` before starting.
+The kit root is the folder that contains this file's parent `prompts/` folder. Below it is called `<kit>`. Read `<kit>/README.md`, `<kit>/ARCHITECTURE.md`, and `<kit>/ROLE_CATALOG.md` before starting.
 
 ## Rules
 
@@ -16,7 +16,7 @@ The kit root is the folder that contains this file's parent `prompts/` folder. B
 
 Run these checks from the repository root and report each result in one line.
 
-1. **Marker.** If `.github/agents/.kit.json` exists, stop immediately and reply: "This repository was bootstrapped on <date> with kit v<version>. Use `/evolve-agents` to change the workspace or `/audit-agents` to check it." Do not continue, even if the user asks in the same message. Re-bootstrapping requires the user to remove the marker by hand, as described in `<kit>/README.md`.
+1. **Marker.** If `.github/agents/.kit.json` exists, stop immediately and reply: "This repository was bootstrapped on <date> with kit v<version>. Use `/evolve-agents` to change the workspace or `/audit-agents` to check it." Do not continue, even if the user asks in the same message. Re-bootstrapping requires the user to remove the marker by hand, as described in `<kit>/ARCHITECTURE.md`.
 2. **Git.** `git --version` succeeds.
 3. **Outer repository.** If `.git/` exists: `git status --porcelain` is empty (otherwise ask the user to commit or stash first), and `git ls-files -- .github` is empty (otherwise stop: the repository publishes `.github/` content, and private-by-default cannot be applied without a user decision). If `.git/` does not exist, ask whether to run `git init -b main`.
 4. **Environments.** `conda env list`. Note any `environment.yml`, `requirements.txt`, or `pyproject.toml`.
@@ -44,7 +44,7 @@ For a **greenfield** repository, interview the user, one short group of question
 4. Deliverables and audience.
 5. Modeling: will models be trained (classical ML, deep learning) or is the work analytical?
 6. Names: project name, Python module name (lowercase, underscores).
-7. Environment: dedicated conda environment, or the shared `DS_002`?
+7. Environment: dedicated conda environment, or a shared one (the kit default is `default_conda_env` in `<kit>/kit.json`)?
 
 Write a discovery summary in chat: mode, evidence, conventions to keep, risks. **Stop** for confirmation.
 
@@ -54,7 +54,7 @@ Propose, in chat:
 
 1. **Roster.** For each role in `<kit>/ROLE_CATALOG.md`, include or exclude it with one line of evidence. The Coordinator is required. For greenfield, start small: Coordinator, Researcher, Data Engineer, Statistical Reviewer, plus a role only when the interview gives evidence for it. Models are fixed by the catalog.
 2. **Settings.** Project name, module name, description (one sentence, no quotes or braces), conda environment, Python version.
-3. **Environment decision.** A dedicated environment keeps its own lock file. `DS_002` is shared: every handoff records the package-list hash, and installs require approval because they affect other projects.
+3. **Environment decision.** A dedicated environment keeps its own lock file. A shared environment (for example the kit default) needs extra care: every handoff records the package-list hash, and installs require approval because they affect other projects.
 4. **Path mapping (existing only).** Where the repository's real locations differ from the kit defaults (`data/raw/`, `data/input_manifest.json`, `runs/<run_id>/`, `<module_name>/`, `reports/figures/`), list the mapping that will be applied in Step 5.
 5. **Repository-specific rules** to carry into `copilot-instructions.md` (for example a data contract, a terminology list, a large-file policy).
 

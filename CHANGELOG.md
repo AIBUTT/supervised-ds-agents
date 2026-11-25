@@ -18,6 +18,22 @@ Component and kit version numbers are not yet bumped.
   repositories, version impact per change, temporary render check, separate Git approvals).
   Nothing changes for installed repositories.
 
+Preparing the kit for public use (repository renamed `supervised-ds-agents`).
+
+- Slash commands use a `{{kit_root}}` placeholder; new `kit_render.py install-prompts`
+  installs them into the VS Code user prompts folder with the kit location filled in
+  (create, unchanged, or refuse a differing file unless `--overwrite`). Replaces the
+  hand-edited `Copy-Item` step with a machine-specific path.
+- Default shared environment renamed to the generic `ds-shared` in `kit.json`; procedures
+  refer to `default_conda_env` instead of a named environment. Existing workspaces keep
+  the environment recorded in their marker.
+- Optional real-asset test takes its environment from `PORTABLE_DOCS_TEST_CONDA_ENV` and
+  conda from `CONDA_EXE` or `PATH`, instead of a personal path.
+- README rewritten as an overview and quickstart; layout, safety layers, environments,
+  undo, and limitations moved to `ARCHITECTURE.md`; portable-docs adoption moved to
+  `components/portable_docs/README.md`. Procedures point to the new locations.
+- MIT license; GitHub Actions workflow runs the kit tests on Windows, Python 3.11.
+
 ## v1.1.0 (2026-11-05)
 
 Engineering maintenance; no scientific defaults or role model labels changed.

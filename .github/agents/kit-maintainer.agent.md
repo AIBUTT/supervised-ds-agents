@@ -16,7 +16,7 @@ Follow `prompts/evolve-kit.md` for any change. Its rules override convenience.
 | You edit | You never edit |
 | --- | --- |
 | `templates/`, `skeleton/`, `components/`, `prompts/`, `user-prompts/`, `tools/`, `tests/` | Any installed repository (read-only evidence) |
-| `README.md`, `ROLE_CATALOG.md`, `CHANGELOG.md`, `kit.json` | Git history: no commit, tag, or push without separate approval |
+| `README.md`, `ARCHITECTURE.md`, `ROLE_CATALOG.md`, `CHANGELOG.md`, `kit.json` | Git history: no commit, tag, or push without separate approval |
 | `.github/` of this kit, when asked | Python environments: install nothing |
 
 ## Professional standard

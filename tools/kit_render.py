@@ -2,9 +2,10 @@
 
 Examples (run from any folder; Python 3.10 or later, standard library only):
     python tools/kit_render.py bootstrap --target C:/work/repo --mode existing \
-        --project-name "Demo study" --module-name demo --conda-env DS_002 \
+        --project-name "Demo study" --module-name demo --conda-env ds-shared \
         --roles "Coordinator,Researcher,Data Engineer,Statistical Reviewer" --dry-run
     python tools/kit_render.py add-role --target C:/work/repo --role Visualizer
+    python tools/kit_render.py install-prompts
 
 Exit codes: 0 success, 1 invalid arguments, 2 already bootstrapped, 3 outer repository
 tracks .github, 4 greenfield target not empty, 5 git unavailable, 6 not bootstrapped,
@@ -16,8 +17,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -29,6 +32,7 @@ HOOK = TEMPLATES / "hooks" / "pre-commit"
 SKELETON = KIT_ROOT / "skeleton" / "ccds_v2_minimal"
 COMPONENT = KIT_ROOT / "components" / "portable_docs"
 COMPONENT_VERSION = "1.1.0"
+USER_PROMPTS = KIT_ROOT / "user-prompts"
 ROLES = json.loads((TEMPLATES / "roles.json").read_text(encoding="utf-8"))
 ROLE_BY_NAME = {role["name"]: role for role in ROLES}
 
@@ -449,6 +453,40 @@ def vendor_core(args: argparse.Namespace) -> dict:
             "local_sha256": local, "new_sha256": new, "version": COMPONENT_VERSION}
 
 
+def default_prompts_dir() -> Path:
+    if sys.platform == "win32":
+        return Path(os.environ["APPDATA"]) / "Code" / "User" / "prompts"
+    if sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / "Code" / "User" / "prompts"
+    return Path.home() / ".config" / "Code" / "User" / "prompts"
+
+
+def install_prompts(args: argparse.Namespace) -> dict:
+    dest = (args.dest or default_prompts_dir()).resolve()
+    values = {"kit_root": KIT_ROOT.as_posix()}
+    plan = []
+    for src in sorted(USER_PROMPTS.glob("*.prompt.md")):
+        data = substitute(src.read_bytes().decode("utf-8"), values, src.name).encode("utf-8")
+        path = dest / src.name
+        if not path.exists():
+            action = "create"
+        elif path.read_bytes() == data:
+            action = "unchanged"
+        else:
+            action = "overwrite" if args.overwrite else "conflict"
+        plan.append((path, data, action))
+    conflicts = [path.name for path, _, action in plan if action == "conflict"]
+    if conflicts:
+        raise KitError(7, f"{conflicts} in {dest.as_posix()} differ from the kit; "
+                          "review them, then rerun with --overwrite")
+    for path, data, action in plan:
+        if action in ("create", "overwrite"):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+    return {"status": "installed", "dest": dest.as_posix(), "kit_root": values["kit_root"],
+            "files": {path.name: action for path, _, action in plan}}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -480,11 +518,18 @@ def main() -> int:
     vendor.add_argument("--path", required=True)
     vendor.add_argument("--expected-sha256")
     vendor.add_argument("--apply", action="store_true")
+    prompts = sub.add_parser("install-prompts",
+                             help="Install the slash commands with this kit's location filled in.")
+    prompts.add_argument("--dest", type=Path,
+                         help="VS Code user prompts folder (default: per-OS VS Code location).")
+    prompts.add_argument("--overwrite", action="store_true",
+                         help="Replace installed prompt files that differ from the kit.")
     args = parser.parse_args()
 
     try:
         commands = {"bootstrap": bootstrap, "add-role": add_role,
-                    "update-components": update_components, "vendor-core": vendor_core}
+                    "update-components": update_components, "vendor-core": vendor_core,
+                    "install-prompts": install_prompts}
         result = commands[args.command](args)
     except KitError as error:
         print(json.dumps({"status": "refused", "code": error.code, "reason": str(error)},
